@@ -65,7 +65,7 @@ Each clip is annotated with a set of independent binary flags. The flags are not
 |---|---|
 | `has_contraction` | Word forms altered by fast/connected speech are present — including reduction, contraction, and phonetic assimilation (corresponds to rule #1 in Section 2.2) |
 | `has_dialect_slang` | Dialectal or colloquial/slang lexical items are present |
-| `has_barbarisms` | The Kazakh-language utterance contains lexical items from another language (typically Russian), regardless of the size of the insertion (a single word, a phrase, or a fragment of a sentence), provided the utterance as a whole remains Kazakh speech in a Kazakh-language context |
+| `has_barbarisms` | The utterance contains a lexical item from another language (typically Russian) for which a native Kazakh equivalent exists and is in common use, but the foreign item is used instead. This excludes internationalisms/loanwords that are assimilated into standard Kazakh vocabulary and lack a distinct native equivalent (e.g. "диплом", "психология", "университет", "прогресс") — such items are not flagged. The flag applies regardless of the size of the insertion (a single word, a phrase, or a fragment of a sentence), provided the utterance as a whole remains Kazakh speech in a Kazakh-language context |
 | `has_propers` | Proper nouns are present |
 
 A clip for which all flags above are set to zero and which contains none of the tags described in Section 3 is defined as requiring no normalization; in this case the normalized layer is identical to the verbatim layer.
