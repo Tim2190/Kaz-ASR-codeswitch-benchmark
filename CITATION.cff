@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this benchmark, please cite it as below."
+title: "Kazakh Code-Switching ASR Benchmark"
+abstract: >-
+  A benchmark evaluating commercial and open ASR services (fine-tuned and base
+  Whisper, Gemini, Google Cloud Speech-to-Text, Yandex SpeechKit) on natural
+  Kazakh speech that code-switches with Russian, using a two-layer reference
+  (verbatim and normalized) and WER/CER/BERTScore metrics broken down by
+  linguistic phenomenon.
+type: dataset
+authors:
+  - family-names: Seidalin
+    given-names: Timur
+license: MIT
+keywords:
+  - automatic speech recognition
+  - ASR benchmark
+  - Kazakh
+  - code-switching
+  - Kazakh-Russian
+  - WER
+  - CER
+date-released: 2026-07-25

@@ -1,5 +1,11 @@
 # Kazakh Code-Switching ASR Benchmark
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)
+![Systems benchmarked: 5](https://img.shields.io/badge/systems-5-brightgreen.svg)
+![Clips: 31](https://img.shields.io/badge/clips-31-informational.svg)
+![Metrics: WER · CER · BERTScore](https://img.shields.io/badge/metrics-WER%20%C2%B7%20CER%20%C2%B7%20BERTScore-orange.svg)
+
 A benchmark for evaluating commercial and open ASR services (OpenAI Whisper,
 Google Speech-to-Text, Yandex SpeechKit, Hugging Face models, …) on **natural
 Kazakh speech that code-switches with Russian** — the everyday Kazakh-Russian
@@ -74,9 +80,12 @@ so you can read e.g. WER on barbarism-bearing clips separately.
 
 ## Results
 
+![Leaderboard: WER and CER per system](results/leaderboard.png)
+
 Full 31-clip set (Google Colab, T4 GPU for the local models; commercial services
 via API). Metrics are the `*_best` variant (better of the two reference layers),
 with number normalization applied (`--normalize-numbers`); lower is better.
+Regenerate the chart with `python scripts/plot_results.py`.
 
 | Model | Type | WER | CER |
 |---|---|---:|---:|
@@ -150,9 +159,10 @@ metadata.csv                 # 31 clips: 2 reference layers + flags + source lin
 annotation_methodology.md    # annotation scheme (read this first)
 audio/                       # 31 WAV clips (see "Audio format" note below)
 evaluate.py                  # scorer: predictions -> WER/CER/(BERTScore) + summary
-benchmark/                   # scoring library (normalize, metrics, aggregation)
+benchmark/                   # scoring library (normalize, numbers, metrics, aggregation)
 runners/                     # one script per ASR provider -> predictions_<svc>.jsonl
-results/                     # generated predictions & score tables
+scripts/plot_results.py      # render results/leaderboard.png from summary.csv
+results/                     # predictions, score tables, and the leaderboard chart
 requirements.txt             # core scoring deps
 requirements-runners.txt     # per-provider runner deps
 ```

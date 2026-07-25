@@ -1,2 +1,5 @@
 # Core scoring — everything evaluate.py needs.
 jiwer>=3.0
+
+# Leaderboard chart (scripts/plot_results.py); optional.
+matplotlib
