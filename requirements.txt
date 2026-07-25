@@ -1,0 +1,2 @@
+# Core scoring — everything evaluate.py needs.
+jiwer>=3.0

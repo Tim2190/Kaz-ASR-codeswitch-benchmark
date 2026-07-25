@@ -1,0 +1,27 @@
+# Dependencies for the ASR runners in runners/. Install only what you need for
+# the providers you intend to run.
+
+# Audio I/O + resampling (used by every runner and prep_audio.py)
+numpy
+scipy
+soundfile
+
+# --- provider SDKs (pick per provider) ---
+# OpenAI audio API             (runners/run_openai_whisper.py)
+openai
+
+# Google Cloud Speech-to-Text  (runners/run_google_stt.py)
+google-cloud-speech
+
+# Yandex SpeechKit REST        (runners/run_yandex_stt.py)
+requests
+
+# Local Whisper (CTranslate2)  (runners/run_whisper_local.py)
+faster-whisper
+
+# Hugging Face models          (runners/run_hf_transformers.py)
+transformers
+torch
+
+# Optional semantic metric     (evaluate.py --bertscore)
+bert-score

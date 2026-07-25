@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Generated evaluation artifacts (keep predictions/results you want to publish
+# by force-adding them: git add -f results/predictions_<service>.jsonl)
+results/predictions_*.jsonl
+results/scores_*.csv
+results/summary.csv
+
+# Canonical resampled audio produced by runners/prep_audio.py
+audio_16k/
