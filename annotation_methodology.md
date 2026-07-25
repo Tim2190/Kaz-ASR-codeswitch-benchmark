@@ -72,7 +72,7 @@ A clip for which all flags above are set to zero and which contains none of the 
 
 ## 6. Data Format
 
-**Audio:** WAV, 16 kHz sample rate, mono, 16-bit PCM, clip duration ≤10 seconds.
+**Audio:** WAV, 16 kHz sample rate, mono, 16-bit PCM, clip duration - up to 20 seconds.
 
 **Annotation table** (one row per clip):
 
