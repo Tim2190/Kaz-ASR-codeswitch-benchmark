@@ -106,6 +106,7 @@ def main():
         audio_part = types.Part.from_bytes(data=wav_bytes, mime_type="audio/wav")
 
         text = ""
+        daily_exhausted = False
         for attempt in range(args.max_retries + 1):
             if interval and (made_a_call or attempt > 0):
                 time.sleep(interval)  # base throttle to stay under the RPM cap
@@ -117,7 +118,16 @@ def main():
                 text = (resp.text or "").strip()
                 break
             except Exception as e:  # noqa: BLE001
-                is_rate = "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e)
+                msg = str(e)
+                # A per-DAY quota won't recover this session — stop immediately so
+                # the user can switch keys, instead of retrying uselessly. A
+                # per-minute limit is worth waiting out.
+                if "PerDay" in msg or "per day" in msg.lower():
+                    daily_exhausted = True
+                    print(f"[{clip.audio_id}] daily quota exhausted for this key.",
+                          file=sys.stderr)
+                    break
+                is_rate = "429" in msg or "RESOURCE_EXHAUSTED" in msg
                 if is_rate and attempt < args.max_retries:
                     delay = _suggested_delay(e, default=interval or 20.0)
                     print(f"[{clip.audio_id}] rate-limited, waiting {delay:.0f}s "
@@ -132,6 +142,12 @@ def main():
             n_new += 1
             flush()  # crash-safe: save after every successful clip
         print(f"({i}/{len(clips)}) {clip.audio_id}: {text[:60]!r}")
+
+        if daily_exhausted:
+            print("\nStopping early: this API key's daily free-tier quota (20 "
+                  "requests) is used up. Update GEMINI_API_KEY to another key and "
+                  "re-run — completed clips are skipped.", file=sys.stderr)
+            break
 
     flush()
     remaining = [aid for aid in clip_order if not results.get(aid)]
