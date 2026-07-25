@@ -187,7 +187,7 @@ python runners/run_google_stt.py --language kk-KZ
 
 # Gemini (LLM-based, uses a plain Gemini API key)
 export GEMINI_API_KEY=...
-python runners/run_gemini.py --model gemini-2.5-flash
+python runners/run_gemini.py --model gemini-2.5-flash   # --rpm 5 throttle for free tier
 
 # Yandex SpeechKit
 export YANDEX_API_KEY=...  YANDEX_FOLDER_ID=...
