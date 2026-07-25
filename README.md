@@ -86,12 +86,37 @@ better.
 *(WER/CER are macro `wer_best`/`cer_best`; micro values are 13.1% / 4.1% and
 43.5% / 13.4% respectively.)*
 
+### By phenomenon
+
+Breaking WER down over the annotation flags is the whole point of the benchmark —
+it shows *where* recognition degrades. WER (macro `wer_best`) per subset:
+
+| Subset | n | Fine-tuned Kazakh | Base Whisper |
+|---|---:|---:|---:|
+| **All** | 31 | **13.0%** | **44.9%** |
+| with Russian barbarisms | 11 | 20.0% | 49.6% |
+| without barbarisms | 20 | 9.1% | 42.3% |
+| with contractions | 20 | 14.8% | 45.1% |
+| without contractions | 11 | 9.6% | 44.5% |
+| with proper nouns* | 5 | 10.6% | 50.0% |
+
+\* small subset (n=5) — directional only.
+
 Takeaways:
 
+- **Code-switching is the dominant error driver.** For the fine-tuned model,
+  clips with a Russian barbarism jump from 9.1% to **20.0% WER** (CER 2.2% →
+  7.0%) — more than double. This is exactly the Kazakh-Russian code-switching
+  weakness the benchmark is built to expose, and it is invisible in a single
+  headline number.
 - **Fine-tuning is decisive.** It cuts WER ~3.5× and CER ~3.6× versus base
-  Whisper on this spontaneous, code-switched material. The figures track
-  published Kazakh baselines (base Whisper >40% WER; fine-tuned ≈14.5% WER /
-  3.39% CER), which is a good sanity check on the harness itself.
+  Whisper. The figures track published Kazakh baselines (base Whisper >40% WER;
+  fine-tuned ≈14.5% WER / 3.39% CER), a good sanity check on the harness itself.
+- **The two reference layers earn their keep.** The fine-tuned model scores
+  19.8% WER against the *verbatim* layer but 13.0% against the *normalized* one —
+  a 6.8-point gap that is auto-normalization of morphology, not recognition
+  error. Base Whisper's gap is only 3.6 points (49.0% → 45.4%): it normalizes
+  less. Scoring against one reference would have conflated these.
 - **WER vs CER gap** illustrates the agglutinative-language point: base Whisper's
   44.9% WER but 14.2% CER means many "wrong" words are off by only a suffix or a
   letter. CER (and BERTScore) are the fairer lens for Kazakh.
