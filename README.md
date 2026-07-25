@@ -148,10 +148,10 @@ Use `--limit N` on any runner for a quick smoke test on the first N clips.
 ## Notes and limitations
 
 - **Audio format.** The distributed clips in `audio/` are **48 kHz stereo**
-  16-bit PCM, while `annotation_methodology.md` §6 specifies 16 kHz mono. The
-  runners resample to 16 kHz mono on the fly, so this does not affect scoring;
-  `runners/prep_audio.py` can also write a canonical 16 kHz mono copy to
-  `audio_16k/`. (Reconcile the spec and the data before a formal release.)
+  16-bit PCM (as documented in `annotation_methodology.md` §6). The runners
+  resample to 16 kHz mono on the fly — the input format most ASR systems
+  expect — so no manual conversion is needed; `runners/prep_audio.py` can also
+  write a canonical 16 kHz mono copy to `audio_16k/` if you want one on disk.
 - **Small set.** 31 clips is enough for a directional comparison, not for tight
   confidence intervals — treat differences between close services with caution.
 - **`has_dialect_slang` is empty.** The flag is defined in the methodology but

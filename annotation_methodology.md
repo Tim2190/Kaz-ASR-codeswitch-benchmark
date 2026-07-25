@@ -72,7 +72,7 @@ A clip for which all flags above are set to zero and which contains none of the 
 
 ## 6. Data Format
 
-**Audio:** WAV, 16 kHz sample rate, mono, 16-bit PCM, clip duration - up to 20 seconds.
+**Audio:** WAV, 48 kHz sample rate, stereo, 16-bit PCM, clip duration - up to 20 seconds. Evaluation tooling resamples each clip to 16 kHz mono on the fly, which is the input format expected by most ASR systems; `runners/prep_audio.py` can also write a canonical 16 kHz mono copy of the dataset.
 
 **Annotation table** (one row per clip):
 
