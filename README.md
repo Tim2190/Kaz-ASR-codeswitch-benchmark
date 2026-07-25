@@ -122,11 +122,14 @@ Takeaways:
   genuinely usable — while Google Cloud STT is last at 64.8% / 38.1%, worse than
   zero-shot Whisper. "Commercial STT" says nothing about Kazakh quality; the
   specific vendor is everything.
-- **Code-switching hits the weaker systems hardest.** Russian barbarisms inflate
-  WER sharply for Gemini (25.4% → 39.6%), base Whisper (40.2% → 49.6%) and Google
-  (61.4% → 71.1%), but barely move the two strongest systems — Yandex (16.8% →
-  19.6%) and the fine-tuned model handle the mixing far more gracefully. Robust
-  Kazakh-Russian code-switching is exactly what separates the top tier.
+- **Barbarisms raise error for every system; only Yandex shrugs them off.**
+  Russian insertions push WER up across the board — Gemini 25.4% → 39.6%, base
+  Whisper 40.2% → 49.6%, Google 61.4% → 71.1%, and even the otherwise-dominant
+  fine-tuned model 9.1% → 20.0% (×2.2 — its single biggest weakness). Yandex is
+  the lone exception, barely moving (16.8% → 19.6%, ×1.2). Caveat: only 11 clips
+  carry a barbarism (~9 points of the subset mean each), so treat these deltas as
+  directional; per-clip inspection confirms the *service ranking* on this subset
+  is broad-based (top and bottom tiers stable across clips), not one outlier.
 - **Fine-tuning still wins, but the gap to Yandex is modest.** The fine-tuned
   model leads (13.0% WER), yet an off-the-shelf commercial API (Yandex) is within
   ~5 points — whereas a general LLM (Gemini, 30.4%) and Google STT are far back.
