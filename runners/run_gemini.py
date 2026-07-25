@@ -22,7 +22,7 @@ import sys
 import time
 
 from common import (
-    add_common_args, iter_clips, write_predictions,
+    add_common_args, iter_clips, write_predictions, read_predictions_map,
     load_audio_16k_mono, pcm16_wav_bytes,
 )
 
@@ -56,6 +56,8 @@ def main():
                          "on a paid tier.")
     ap.add_argument("--max-retries", type=int, default=6,
                     help="Retries per clip on a 429 (rate-limit) response.")
+    ap.add_argument("--overwrite", action="store_true",
+                    help="Re-transcribe every clip, ignoring any saved output.")
     args = ap.parse_args()
 
     interval = 60.0 / args.rpm if args.rpm > 0 else 0.0
@@ -76,17 +78,38 @@ def main():
     clips = list(iter_clips(args.metadata, args.audio_dir))
     if args.limit:
         clips = clips[: args.limit]
+    clip_order = [c.audio_id for c in clips]
 
-    records = []
+    # Resume: seed with any already-saved outputs so a re-run (e.g. with a fresh
+    # API key after a daily quota) only fills the gaps.
+    done = {} if args.overwrite else read_predictions_map(service, args.results_dir)
+    results = dict(done)
+    if done:
+        print(f"Resuming: {len(done)} clips already have output, "
+              f"{len(clip_order) - len(done)} to go.")
+
+    def flush():
+        """Persist all results so far, in clip order, after every clip."""
+        ordered = [{"audio_id": aid, "raw_output": results[aid]}
+                   for aid in clip_order if aid in results]
+        write_predictions(service, ordered, args.results_dir)
+
+    n_new = 0
+    made_a_call = False
     for i, clip in enumerate(clips, 1):
+        if results.get(clip.audio_id):  # already have a non-empty transcript
+            print(f"({i}/{len(clips)}) {clip.audio_id}: [skip, already done]")
+            continue
+
         samples, sr = load_audio_16k_mono(clip.path)
         wav_bytes = pcm16_wav_bytes(samples, sr)
         audio_part = types.Part.from_bytes(data=wav_bytes, mime_type="audio/wav")
 
         text = ""
         for attempt in range(args.max_retries + 1):
-            if interval and (i > 1 or attempt > 0):
+            if interval and (made_a_call or attempt > 0):
                 time.sleep(interval)  # base throttle to stay under the RPM cap
+            made_a_call = True
             try:
                 resp = client.models.generate_content(
                     model=args.model, contents=[audio_part, PROMPT],
@@ -103,11 +126,24 @@ def main():
                     continue
                 print(f"[{clip.audio_id}] ERROR: {e}", file=sys.stderr)
                 break
-        records.append({"audio_id": clip.audio_id, "raw_output": text})
+
+        if text:
+            results[clip.audio_id] = text
+            n_new += 1
+            flush()  # crash-safe: save after every successful clip
         print(f"({i}/{len(clips)}) {clip.audio_id}: {text[:60]!r}")
 
-    path = write_predictions(service, records, args.results_dir)
-    print(f"\nWrote {path}")
+    flush()
+    remaining = [aid for aid in clip_order if not results.get(aid)]
+    path = write_predictions(service,
+                             [{"audio_id": aid, "raw_output": results.get(aid, "")}
+                              for aid in clip_order], args.results_dir)
+    print(f"\nWrote {path} — {len(results)}/{len(clip_order)} done this session "
+          f"(+{n_new} new).")
+    if remaining:
+        print(f"Still missing {len(remaining)} clips: {', '.join(remaining)}\n"
+              f"Re-run with a fresh API key to fill them (already-done clips are "
+              f"skipped).")
 
 
 if __name__ == "__main__":

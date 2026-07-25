@@ -107,16 +107,42 @@ def pcm16_wav_bytes(samples, sr: int = 16000) -> bytes:
     return buf.getvalue()
 
 
+def predictions_path(service: str, results_dir: str = RESULTS_DIR_DEFAULT) -> str:
+    return os.path.join(results_dir, f"predictions_{service}.jsonl")
+
+
 def write_predictions(service: str, records: list[dict],
                       results_dir: str = RESULTS_DIR_DEFAULT) -> str:
     """Write predictions to results/predictions_<service>.jsonl and return path."""
     os.makedirs(results_dir, exist_ok=True)
-    path = os.path.join(results_dir, f"predictions_{service}.jsonl")
+    path = predictions_path(service, results_dir)
     with open(path, "w", encoding="utf-8") as f:
         for rec in records:
             rec.setdefault("service", service)
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return path
+
+
+def read_predictions_map(service: str,
+                         results_dir: str = RESULTS_DIR_DEFAULT) -> "dict[str, str]":
+    """Load an existing predictions file into {audio_id: raw_output}.
+
+    Used to resume a partially-completed run: clips already transcribed (with a
+    non-empty output) can be skipped so a re-run only fills the gaps. Returns an
+    empty dict if no file exists yet.
+    """
+    path = predictions_path(service, results_dir)
+    out: dict[str, str] = {}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            out[str(rec["audio_id"]).strip()] = rec.get("raw_output", "") or ""
+    return out
 
 
 def add_common_args(ap):
