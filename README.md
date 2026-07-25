@@ -72,6 +72,38 @@ Aggregates are reported both **macro** (mean of per-clip rates) and **micro**
 (pooled edits ÷ pooled reference length), overall and **per phenomenon flag**,
 so you can read e.g. WER on barbarism-bearing clips separately.
 
+## Results
+
+First run — Whisper-family models on the full 31-clip set (Google Colab, T4 GPU).
+Metrics are the `*_best` variant (better of the two reference layers); lower is
+better.
+
+| Model | Type | WER | CER |
+|---|---|---:|---:|
+| `shyngys879/kazakh-whisper-large-v3-turbo` | fine-tuned (Kazakh) | **13.0%** | **3.9%** |
+| `openai/whisper-large-v3` | base, zero-shot | 44.9% | 14.2% |
+
+*(WER/CER are macro `wer_best`/`cer_best`; micro values are 13.1% / 4.1% and
+43.5% / 13.4% respectively.)*
+
+Takeaways:
+
+- **Fine-tuning is decisive.** It cuts WER ~3.5× and CER ~3.6× versus base
+  Whisper on this spontaneous, code-switched material. The figures track
+  published Kazakh baselines (base Whisper >40% WER; fine-tuned ≈14.5% WER /
+  3.39% CER), which is a good sanity check on the harness itself.
+- **WER vs CER gap** illustrates the agglutinative-language point: base Whisper's
+  44.9% WER but 14.2% CER means many "wrong" words are off by only a suffix or a
+  letter. CER (and BERTScore) are the fairer lens for Kazakh.
+- **Caveat — number formatting.** Base Whisper emits digits ("5, 6, 7") where the
+  reference spells them out ("бес алты жеті"), which WER counts as errors and
+  inflates its score somewhat. A number-normalization pass (future work) would
+  narrow the gap.
+
+Only open Whisper-family models are covered so far. Commercial services (OpenAI
+API, Google STT, Yandex SpeechKit) need API keys and are still to be run — their
+runners are ready in `runners/`.
+
 ## Repository layout
 
 ```
