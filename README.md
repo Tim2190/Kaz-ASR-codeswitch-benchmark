@@ -89,14 +89,14 @@ Regenerate the chart with `python scripts/plot_results.py`.
 
 | Model | Type | WER | CER |
 |---|---|---:|---:|
-| `shyngys879/kazakh-whisper-large-v3-turbo` | fine-tuned (Kazakh) | **13.0%** | **3.9%** |
-| Yandex SpeechKit (`kk-KZ`) | commercial STT | 17.8% | 6.6% |
-| `gemini-2.5-flash` | commercial multimodal LLM | 30.4% | 12.6% |
-| `openai/whisper-large-v3` | base, zero-shot | 43.5% | 13.0% |
-| Google Cloud Speech-to-Text (`kk-KZ`) | commercial STT | 64.8% | 38.1% |
+| `shyngys879/kazakh-whisper-large-v3-turbo` | fine-tuned (Kazakh) | **12.3%** | **3.8%** |
+| Yandex SpeechKit (`kk-KZ`) | commercial STT | 17.1% | 6.5% |
+| `gemini-2.5-flash` | commercial multimodal LLM | 29.7% | 12.6% |
+| `openai/whisper-large-v3` | base, zero-shot | 42.8% | 13.0% |
+| Google Cloud Speech-to-Text (`kk-KZ`) | commercial STT | 64.9% | 38.1% |
 
-*(WER/CER are macro `wer_best`/`cer_best`; micro values are 13.1% / 4.1%,
-17.2% / 6.3%, 29.0% / 11.8%, 42.8% / 13.0%, and 66.5% / 40.0% respectively.)*
+*(WER/CER are macro `wer_best`/`cer_best`; micro values are 12.5% / 4.0%,
+16.6% / 6.3%, 28.4% / 11.8%, 42.0% / 12.9%, and 66.5% / 40.0% respectively.)*
 
 ### By phenomenon
 
@@ -105,11 +105,11 @@ it shows *where* recognition degrades. WER (macro `wer_best`) per subset:
 
 | Subset | n | Fine-tuned Kazakh | Yandex | Gemini 2.5 Flash | Base Whisper | Google STT |
 |---|---:|---:|---:|---:|---:|---:|
-| **All** | 31 | **13.0%** | **17.8%** | **30.4%** | **43.5%** | **64.8%** |
-| with Russian barbarisms | 11 | 20.0% | 19.6% | 39.6% | 49.6% | 71.1% |
+| **All** | 31 | **12.3%** | **17.1%** | **29.7%** | **42.8%** | **64.9%** |
+| with Russian barbarisms | 11 | 18.2% | 17.7% | 37.5% | 47.5% | 71.2% |
 | without barbarisms | 20 | 9.1% | 16.8% | 25.4% | 40.2% | 61.4% |
-| with contractions | 20 | 14.8% | 16.2% | 32.5% | 44.8% | 70.0% |
-| without contractions | 11 | 9.6% | 20.6% | 26.6% | 41.1% | 55.5% |
+| with contractions | 20 | 14.4% | 15.9% | 32.1% | 44.4% | 70.0% |
+| without contractions | 11 | 8.5% | 19.4% | 25.3% | 39.8% | 55.5% |
 | with proper nouns* | 5 | 10.6% | 24.1% | 28.1% | 48.9% | 64.5% |
 
 \* small subset (n=5) — directional only.
@@ -118,33 +118,36 @@ Takeaways:
 
 - **Commercial services span the entire quality range.** The single biggest
   finding: two commercial STT products sit at opposite ends. Yandex SpeechKit is
-  second overall at 17.8% WER / 6.6% CER — close to the dedicated fine-tune and
-  genuinely usable — while Google Cloud STT is last at 64.8% / 38.1%, worse than
+  second overall at 17.1% WER / 6.5% CER — close to the dedicated fine-tune and
+  genuinely usable — while Google Cloud STT is last at 64.9% / 38.1%, worse than
   zero-shot Whisper. "Commercial STT" says nothing about Kazakh quality; the
   specific vendor is everything.
 - **Barbarisms raise error for every system; only Yandex shrugs them off.**
-  Russian insertions push WER up across the board — Gemini 25.4% → 39.6%, base
-  Whisper 40.2% → 49.6%, Google 61.4% → 71.1%, and even the otherwise-dominant
-  fine-tuned model 9.1% → 20.0% (×2.2 — its single biggest weakness). Yandex is
-  the lone exception, barely moving (16.8% → 19.6%, ×1.2). Caveat: only 11 clips
-  carry a barbarism (~9 points of the subset mean each), so treat these deltas as
-  directional; per-clip inspection confirms the *service ranking* on this subset
-  is broad-based (top and bottom tiers stable across clips), not one outlier.
+  Russian insertions push WER up across the board — Gemini 25.4% → 37.5%, base
+  Whisper 40.2% → 47.5%, Google 61.4% → 71.2%, and even the otherwise-dominant
+  fine-tuned model 9.1% → 18.2% (×2.0 — its single biggest weakness). Yandex is
+  the lone exception, barely moving (16.8% → 17.7%, ×1.1). A word-level check
+  (`scripts/barbarism_analysis.py`) shows the errors fall hardest on the Russian
+  insertions for most systems — Google mis-recognizes **100%** of them (vs 66%
+  of the surrounding Kazakh), Yandex 22% vs 15%, base Whisper 52% vs 47% —
+  though the fine-tune is roughly even (19% vs 17%) and Gemini actually errs more
+  on the Kazakh (26% vs 36%). Caveat: only 11 clips carry a barbarism, so treat
+  the exact deltas as directional.
 - **Fine-tuning still wins, but the gap to Yandex is modest.** The fine-tuned
-  model leads (13.0% WER), yet an off-the-shelf commercial API (Yandex) is within
-  ~5 points — whereas a general LLM (Gemini, 30.4%) and Google STT are far back.
+  model leads (12.3% WER), yet an off-the-shelf commercial API (Yandex) is within
+  ~5 points — whereas a general LLM (Gemini, 29.7%) and Google STT are far back.
   The base-Whisper / fine-tuned figures track published Kazakh baselines (base
   >40% WER; fine-tuned ≈14.5% WER / 3.39% CER), a sanity check on the harness.
 - **Google STT hallucinates.** Its 3×-everyone-else CER reflects whole-word
   substitutions and inventions ("мышеловки", "институционалды", "567"), not mere
   mis-inflection — a purpose-built speech API being the worst option here.
 - **The two reference layers earn their keep.** The fine-tuned model scores
-  19.8% WER against the *verbatim* layer but 13.0% against the *normalized* one —
-  a 6.8-point gap that is auto-normalization of morphology, not recognition
-  error. Base Whisper's gap is only 3.6 points (47.6% → 44.0%): it normalizes
+  19.8% WER against the *verbatim* layer but 12.3% against the *normalized* one —
+  a 7.5-point gap that is auto-normalization of morphology, not recognition
+  error. Base Whisper's gap is only 4.3 points (47.6% → 43.3%): it normalizes
   less. Scoring against one reference would have conflated these.
 - **WER vs CER gap** illustrates the agglutinative-language point: base Whisper's
-  43.5% WER but 13.0% CER means many "wrong" words are off by only a suffix or a
+  42.8% WER but 13.0% CER means many "wrong" words are off by only a suffix or a
   letter. CER (and BERTScore) are the fairer lens for Kazakh.
 - **Number formatting is normalized.** Whisper-family models emit digits ("5, 6,
   7", "40 минут") where the references spell them out ("бес алты жеті", "қырық
