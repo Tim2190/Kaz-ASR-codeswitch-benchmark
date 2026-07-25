@@ -120,6 +120,9 @@ def main(argv=None):
                          "(needs bert-score + a large HF model; optional).")
     ap.add_argument("--bertscore-model", default=None,
                     help="Override the BERTScore model_type.")
+    ap.add_argument("--normalize-numbers", action="store_true",
+                    help="Spell digit runs as Kazakh words before scoring, so a "
+                         "service emitting '40' is not penalized against 'қырық'.")
     args = ap.parse_args(argv)
 
     meta = load_metadata(args.metadata)
@@ -146,15 +149,17 @@ def main(argv=None):
         scores = []
         for aid, info in meta.items():
             raw = preds.get(aid, "")
-            scores.append(clip_metrics(aid, service, raw, info["refs"]))
+            scores.append(clip_metrics(aid, service, raw, info["refs"],
+                                       normalize_numbers=args.normalize_numbers))
 
         bert_by_id = {}
         if args.bertscore:
             from benchmark.normalize import normalize_for_wer
             from benchmark.semantic import bertscore_f1, DEFAULT_MODEL
             ids = [s.audio_id for s in scores if not s.excluded]
-            hyps = [normalize_for_wer(preds.get(aid, "")) for aid in ids]
-            refs = [normalize_for_wer(meta[aid]["refs"].normalized) for aid in ids]
+            nn = args.normalize_numbers
+            hyps = [normalize_for_wer(preds.get(aid, ""), nn) for aid in ids]
+            refs = [normalize_for_wer(meta[aid]["refs"].normalized, nn) for aid in ids]
             f1s = bertscore_f1(hyps, refs, model_type=args.bertscore_model or DEFAULT_MODEL)
             bert_by_id = dict(zip(ids, f1s))
 

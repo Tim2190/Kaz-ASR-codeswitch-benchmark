@@ -42,17 +42,25 @@ def strip_tags(text: str) -> str:
     return _WS_RE.sub(" ", text).strip()
 
 
-def normalize_for_wer(text: str) -> str:
+def normalize_for_wer(text: str, normalize_numbers: bool = False) -> str:
     """Normalize a transcript (reference or hypothesis) for WER/CER scoring.
 
-    Steps: Unicode NFC → strip annotation tags → lowercase → drop punctuation
-    (keeping the trailing hyphen of truncated fragments) → collapse whitespace.
+    Steps: Unicode NFC → strip annotation tags → lowercase → (optionally) spell
+    digits as Kazakh words → drop punctuation (keeping the trailing hyphen of
+    truncated fragments) → collapse whitespace.
+
+    ``normalize_numbers`` converts digit runs to spelled-out Kazakh cardinals so
+    that a service emitting "40" is not penalized against a reference that spells
+    "қырық". References contain no digits, so this only ever affects hypotheses.
     """
     if text is None:
         return ""
     text = unicodedata.normalize("NFC", str(text))
     text = strip_tags(text)
     text = text.lower()
+    if normalize_numbers:
+        from .numbers import digits_to_words_kk
+        text = digits_to_words_kk(text)
     # Remove punctuation but keep hyphens (they mark truncated fragments such
     # as "шы-"). A hyphen that is left dangling at a word boundary is harmless
     # for token comparison.

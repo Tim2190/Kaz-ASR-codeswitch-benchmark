@@ -75,16 +75,16 @@ so you can read e.g. WER on barbarism-bearing clips separately.
 ## Results
 
 First run — Whisper-family models on the full 31-clip set (Google Colab, T4 GPU).
-Metrics are the `*_best` variant (better of the two reference layers); lower is
-better.
+Metrics are the `*_best` variant (better of the two reference layers), with
+number normalization applied (`--normalize-numbers`); lower is better.
 
 | Model | Type | WER | CER |
 |---|---|---:|---:|
 | `shyngys879/kazakh-whisper-large-v3-turbo` | fine-tuned (Kazakh) | **13.0%** | **3.9%** |
-| `openai/whisper-large-v3` | base, zero-shot | 44.9% | 14.2% |
+| `openai/whisper-large-v3` | base, zero-shot | 43.5% | 13.0% |
 
 *(WER/CER are macro `wer_best`/`cer_best`; micro values are 13.1% / 4.1% and
-43.5% / 13.4% respectively.)*
+42.8% / 13.0% respectively.)*
 
 ### By phenomenon
 
@@ -93,12 +93,12 @@ it shows *where* recognition degrades. WER (macro `wer_best`) per subset:
 
 | Subset | n | Fine-tuned Kazakh | Base Whisper |
 |---|---:|---:|---:|
-| **All** | 31 | **13.0%** | **44.9%** |
+| **All** | 31 | **13.0%** | **43.5%** |
 | with Russian barbarisms | 11 | 20.0% | 49.6% |
-| without barbarisms | 20 | 9.1% | 42.3% |
-| with contractions | 20 | 14.8% | 45.1% |
-| without contractions | 11 | 9.6% | 44.5% |
-| with proper nouns* | 5 | 10.6% | 50.0% |
+| without barbarisms | 20 | 9.1% | 40.2% |
+| with contractions | 20 | 14.8% | 44.8% |
+| without contractions | 11 | 9.6% | 41.1% |
+| with proper nouns* | 5 | 10.6% | 48.9% |
 
 \* small subset (n=5) — directional only.
 
@@ -115,15 +115,16 @@ Takeaways:
 - **The two reference layers earn their keep.** The fine-tuned model scores
   19.8% WER against the *verbatim* layer but 13.0% against the *normalized* one —
   a 6.8-point gap that is auto-normalization of morphology, not recognition
-  error. Base Whisper's gap is only 3.6 points (49.0% → 45.4%): it normalizes
+  error. Base Whisper's gap is only 3.6 points (47.6% → 44.0%): it normalizes
   less. Scoring against one reference would have conflated these.
 - **WER vs CER gap** illustrates the agglutinative-language point: base Whisper's
-  44.9% WER but 14.2% CER means many "wrong" words are off by only a suffix or a
+  43.5% WER but 13.0% CER means many "wrong" words are off by only a suffix or a
   letter. CER (and BERTScore) are the fairer lens for Kazakh.
-- **Caveat — number formatting.** Base Whisper emits digits ("5, 6, 7") where the
-  reference spells them out ("бес алты жеті"), which WER counts as errors and
-  inflates its score somewhat. A number-normalization pass (future work) would
-  narrow the gap.
+- **Number formatting is normalized.** Whisper-family models emit digits ("5, 6,
+  7", "40 минут") where the references spell them out ("бес алты жеті", "қырық
+  минут"). The reported numbers apply `--normalize-numbers`, which spells digits
+  as Kazakh words before scoring; without it, base Whisper's WER/CER would read
+  44.9% / 14.2% — the extra ~1.4 points being formatting, not misrecognition.
 
 Only open Whisper-family models are covered so far. Commercial services (OpenAI
 API, Google STT, Yandex SpeechKit) need API keys and are still to be run — their
@@ -154,8 +155,12 @@ system, you can skip straight to scoring.
 ```bash
 pip install -r requirements.txt
 
-python evaluate.py --predictions results/predictions_myservice.jsonl
+python evaluate.py --predictions results/predictions_myservice.jsonl --normalize-numbers
 ```
+
+`--normalize-numbers` spells out digits as Kazakh words before scoring (so "40"
+isn't penalized against "қырық"); it's recommended for a fair cross-service
+comparison and is what the published results use.
 
 A predictions file is one hypothesis per clip, as JSONL:
 
@@ -180,6 +185,10 @@ python runners/run_openai_whisper.py --model whisper-1
 export GOOGLE_APPLICATION_CREDENTIALS=/path/to/sa.json
 python runners/run_google_stt.py --language kk-KZ
 
+# Gemini (LLM-based, uses a plain Gemini API key)
+export GEMINI_API_KEY=...
+python runners/run_gemini.py --model gemini-2.5-flash
+
 # Yandex SpeechKit
 export YANDEX_API_KEY=...  YANDEX_FOLDER_ID=...
 python runners/run_yandex_stt.py --language kk-KZ
@@ -194,7 +203,7 @@ python runners/run_hf_transformers.py --model shyngys879/kazakh-whisper-large-v3
 Each runner writes `results/predictions_<service>.jsonl`. Then score everything:
 
 ```bash
-python evaluate.py --predictions results/predictions_*.jsonl
+python evaluate.py --predictions results/predictions_*.jsonl --normalize-numbers
 ```
 
 Add `--bertscore` to also compute the semantic metric (pulls a large

@@ -114,14 +114,14 @@ class ClipScore:
 
 
 def clip_metrics(audio_id: str, service: str, raw_output: str,
-                 refs: ReferenceLayers) -> ClipScore:
+                 refs: ReferenceLayers, normalize_numbers: bool = False) -> ClipScore:
     """Compute WER/CER of ``raw_output`` against both reference layers."""
-    hyp = normalize_for_wer(raw_output)
+    hyp = normalize_for_wer(raw_output, normalize_numbers)
 
     excluded = has_unclear(refs.verbatim) or has_unclear(refs.normalized)
 
-    ref_v = normalize_for_wer(refs.verbatim)
-    ref_n = normalize_for_wer(refs.normalized)
+    ref_v = normalize_for_wer(refs.verbatim, normalize_numbers)
+    ref_n = normalize_for_wer(refs.normalized, normalize_numbers)
 
     wc_v = _word_counts(ref_v, hyp)
     wc_n = _word_counts(ref_n, hyp)
