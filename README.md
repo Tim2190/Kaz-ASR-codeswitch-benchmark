@@ -83,23 +83,24 @@ number normalization applied (`--normalize-numbers`); lower is better.
 | `shyngys879/kazakh-whisper-large-v3-turbo` | fine-tuned (Kazakh) | **13.0%** | **3.9%** |
 | `gemini-2.5-flash` | commercial multimodal LLM | 30.4% | 12.6% |
 | `openai/whisper-large-v3` | base, zero-shot | 43.5% | 13.0% |
+| Google Cloud Speech-to-Text (`kk-KZ`) | commercial STT | 64.8% | 38.1% |
 
 *(WER/CER are macro `wer_best`/`cer_best`; micro values are 13.1% / 4.1%,
-29.0% / 11.8%, and 42.8% / 13.0% respectively.)*
+29.0% / 11.8%, 42.8% / 13.0%, and 66.5% / 40.0% respectively.)*
 
 ### By phenomenon
 
 Breaking WER down over the annotation flags is the whole point of the benchmark —
 it shows *where* recognition degrades. WER (macro `wer_best`) per subset:
 
-| Subset | n | Fine-tuned Kazakh | Gemini 2.5 Flash | Base Whisper |
-|---|---:|---:|---:|---:|
-| **All** | 31 | **13.0%** | **30.4%** | **43.5%** |
-| with Russian barbarisms | 11 | 20.0% | 39.6% | 49.6% |
-| without barbarisms | 20 | 9.1% | 25.4% | 40.2% |
-| with contractions | 20 | 14.8% | 32.5% | 44.8% |
-| without contractions | 11 | 9.6% | 26.6% | 41.1% |
-| with proper nouns* | 5 | 10.6% | 28.1% | 48.9% |
+| Subset | n | Fine-tuned Kazakh | Gemini 2.5 Flash | Base Whisper | Google STT |
+|---|---:|---:|---:|---:|---:|
+| **All** | 31 | **13.0%** | **30.4%** | **43.5%** | **64.8%** |
+| with Russian barbarisms | 11 | 20.0% | 39.6% | 49.6% | 71.1% |
+| without barbarisms | 20 | 9.1% | 25.4% | 40.2% | 61.4% |
+| with contractions | 20 | 14.8% | 32.5% | 44.8% | 70.0% |
+| without contractions | 11 | 9.6% | 26.6% | 41.1% | 55.5% |
+| with proper nouns* | 5 | 10.6% | 28.1% | 48.9% | 64.5% |
 
 \* small subset (n=5) — directional only.
 
@@ -118,6 +119,12 @@ Takeaways:
   outperforms zero-shot Whisper on word accuracy (30.4% vs 43.5% WER) despite a
   similar CER, but a task-specific fine-tune is in another league — a concrete
   data point for "off-the-shelf commercial LLM vs a dedicated Kazakh model".
+- **A dedicated commercial STT can be the worst option.** Google Cloud
+  Speech-to-Text (`kk-KZ`) is last at 64.8% WER / 38.1% CER — worse than
+  zero-shot Whisper and roughly 5× the fine-tuned model. Its CER is 3× everyone
+  else's because it doesn't just mis-inflect, it substitutes whole words and
+  hallucinates ("мышеловки", "институционалды", "567"). Being a purpose-built
+  speech API is no guarantee of quality on Kazakh code-switching.
 - **The two reference layers earn their keep.** The fine-tuned model scores
   19.8% WER against the *verbatim* layer but 13.0% against the *normalized* one —
   a 6.8-point gap that is auto-normalization of morphology, not recognition
