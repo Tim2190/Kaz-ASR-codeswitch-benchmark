@@ -8,6 +8,15 @@ hf_shyngys879_kazakh-whisper-large-v3-turbo,has_barbarisms=1,11,0.1999,0.201,0.0
 hf_shyngys879_kazakh-whisper-large-v3-turbo,has_barbarisms=0,20,0.091,0.0901,0.0215,0.0225,0.1407,0.091
 hf_shyngys879_kazakh-whisper-large-v3-turbo,has_propers=1,5,0.1064,0.1111,0.0181,0.0191,0.1998,0.1064
 hf_shyngys879_kazakh-whisper-large-v3-turbo,has_propers=0,26,0.1341,0.135,0.0429,0.0455,0.1973,0.1341
+yandex_stt,all,31,0.1779,0.1723,0.0656,0.0633,0.2429,0.1871
+yandex_stt,has_contraction=1,20,0.1625,0.1542,0.0554,0.0562,0.2486,0.1768
+yandex_stt,has_contraction=0,11,0.2059,0.223,0.0842,0.0837,0.2326,0.2059
+yandex_stt,has_dialect_slang=1,0,0.0,0.0,0.0,0.0,0.0,0.0
+yandex_stt,has_dialect_slang=0,31,0.1779,0.1723,0.0656,0.0633,0.2429,0.1871
+yandex_stt,has_barbarisms=1,11,0.1956,0.1907,0.0685,0.07,0.3197,0.1956
+yandex_stt,has_barbarisms=0,20,0.1682,0.1617,0.0641,0.0592,0.2007,0.1824
+yandex_stt,has_propers=1,5,0.2408,0.2111,0.0563,0.053,0.298,0.2568
+yandex_stt,has_propers=0,26,0.1658,0.1644,0.0674,0.0656,0.2323,0.1737
 gemini_gemini-2.5-flash,all,31,0.304,0.2903,0.1263,0.1184,0.3628,0.3066
 gemini_gemini-2.5-flash,has_contraction=1,20,0.3252,0.2964,0.1258,0.1157,0.4017,0.3292
 gemini_gemini-2.5-flash,has_contraction=0,11,0.2655,0.2734,0.1272,0.126,0.2921,0.2655

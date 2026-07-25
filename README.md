@@ -74,57 +74,58 @@ so you can read e.g. WER on barbarism-bearing clips separately.
 
 ## Results
 
-Full 31-clip set (Google Colab, T4 GPU for the local models; Gemini via API).
-Metrics are the `*_best` variant (better of the two reference layers), with
-number normalization applied (`--normalize-numbers`); lower is better.
+Full 31-clip set (Google Colab, T4 GPU for the local models; commercial services
+via API). Metrics are the `*_best` variant (better of the two reference layers),
+with number normalization applied (`--normalize-numbers`); lower is better.
 
 | Model | Type | WER | CER |
 |---|---|---:|---:|
 | `shyngys879/kazakh-whisper-large-v3-turbo` | fine-tuned (Kazakh) | **13.0%** | **3.9%** |
+| Yandex SpeechKit (`kk-KZ`) | commercial STT | 17.8% | 6.6% |
 | `gemini-2.5-flash` | commercial multimodal LLM | 30.4% | 12.6% |
 | `openai/whisper-large-v3` | base, zero-shot | 43.5% | 13.0% |
 | Google Cloud Speech-to-Text (`kk-KZ`) | commercial STT | 64.8% | 38.1% |
 
 *(WER/CER are macro `wer_best`/`cer_best`; micro values are 13.1% / 4.1%,
-29.0% / 11.8%, 42.8% / 13.0%, and 66.5% / 40.0% respectively.)*
+17.2% / 6.3%, 29.0% / 11.8%, 42.8% / 13.0%, and 66.5% / 40.0% respectively.)*
 
 ### By phenomenon
 
 Breaking WER down over the annotation flags is the whole point of the benchmark —
 it shows *where* recognition degrades. WER (macro `wer_best`) per subset:
 
-| Subset | n | Fine-tuned Kazakh | Gemini 2.5 Flash | Base Whisper | Google STT |
-|---|---:|---:|---:|---:|---:|
-| **All** | 31 | **13.0%** | **30.4%** | **43.5%** | **64.8%** |
-| with Russian barbarisms | 11 | 20.0% | 39.6% | 49.6% | 71.1% |
-| without barbarisms | 20 | 9.1% | 25.4% | 40.2% | 61.4% |
-| with contractions | 20 | 14.8% | 32.5% | 44.8% | 70.0% |
-| without contractions | 11 | 9.6% | 26.6% | 41.1% | 55.5% |
-| with proper nouns* | 5 | 10.6% | 28.1% | 48.9% | 64.5% |
+| Subset | n | Fine-tuned Kazakh | Yandex | Gemini 2.5 Flash | Base Whisper | Google STT |
+|---|---:|---:|---:|---:|---:|---:|
+| **All** | 31 | **13.0%** | **17.8%** | **30.4%** | **43.5%** | **64.8%** |
+| with Russian barbarisms | 11 | 20.0% | 19.6% | 39.6% | 49.6% | 71.1% |
+| without barbarisms | 20 | 9.1% | 16.8% | 25.4% | 40.2% | 61.4% |
+| with contractions | 20 | 14.8% | 16.2% | 32.5% | 44.8% | 70.0% |
+| without contractions | 11 | 9.6% | 20.6% | 26.6% | 41.1% | 55.5% |
+| with proper nouns* | 5 | 10.6% | 24.1% | 28.1% | 48.9% | 64.5% |
 
 \* small subset (n=5) — directional only.
 
 Takeaways:
 
-- **Code-switching is the dominant error driver — for every model.** Russian
-  barbarisms inflate WER across the board: fine-tuned 9.1% → 20.0%, Gemini 25.4%
-  → 39.6%, base Whisper 40.2% → 49.6%. This is exactly the Kazakh-Russian
-  code-switching weakness the benchmark is built to expose, and it is invisible
-  in a single headline number.
-- **Fine-tuning still wins by a wide margin.** The fine-tuned model beats the
-  commercial LLM (Gemini) 2.3× on WER and 3.2× on CER, and base Whisper ~3.5×.
-  The figures track published Kazakh baselines (base Whisper >40% WER; fine-tuned
-  ≈14.5% WER / 3.39% CER), a good sanity check on the harness itself.
-- **Gemini lands in the middle.** As a general multimodal LLM it clearly
-  outperforms zero-shot Whisper on word accuracy (30.4% vs 43.5% WER) despite a
-  similar CER, but a task-specific fine-tune is in another league — a concrete
-  data point for "off-the-shelf commercial LLM vs a dedicated Kazakh model".
-- **A dedicated commercial STT can be the worst option.** Google Cloud
-  Speech-to-Text (`kk-KZ`) is last at 64.8% WER / 38.1% CER — worse than
-  zero-shot Whisper and roughly 5× the fine-tuned model. Its CER is 3× everyone
-  else's because it doesn't just mis-inflect, it substitutes whole words and
-  hallucinates ("мышеловки", "институционалды", "567"). Being a purpose-built
-  speech API is no guarantee of quality on Kazakh code-switching.
+- **Commercial services span the entire quality range.** The single biggest
+  finding: two commercial STT products sit at opposite ends. Yandex SpeechKit is
+  second overall at 17.8% WER / 6.6% CER — close to the dedicated fine-tune and
+  genuinely usable — while Google Cloud STT is last at 64.8% / 38.1%, worse than
+  zero-shot Whisper. "Commercial STT" says nothing about Kazakh quality; the
+  specific vendor is everything.
+- **Code-switching hits the weaker systems hardest.** Russian barbarisms inflate
+  WER sharply for Gemini (25.4% → 39.6%), base Whisper (40.2% → 49.6%) and Google
+  (61.4% → 71.1%), but barely move the two strongest systems — Yandex (16.8% →
+  19.6%) and the fine-tuned model handle the mixing far more gracefully. Robust
+  Kazakh-Russian code-switching is exactly what separates the top tier.
+- **Fine-tuning still wins, but the gap to Yandex is modest.** The fine-tuned
+  model leads (13.0% WER), yet an off-the-shelf commercial API (Yandex) is within
+  ~5 points — whereas a general LLM (Gemini, 30.4%) and Google STT are far back.
+  The base-Whisper / fine-tuned figures track published Kazakh baselines (base
+  >40% WER; fine-tuned ≈14.5% WER / 3.39% CER), a sanity check on the harness.
+- **Google STT hallucinates.** Its 3×-everyone-else CER reflects whole-word
+  substitutions and inventions ("мышеловки", "институционалды", "567"), not mere
+  mis-inflection — a purpose-built speech API being the worst option here.
 - **The two reference layers earn their keep.** The fine-tuned model scores
   19.8% WER against the *verbatim* layer but 13.0% against the *normalized* one —
   a 6.8-point gap that is auto-normalization of morphology, not recognition
@@ -139,9 +140,8 @@ Takeaways:
   as Kazakh words before scoring; without it, base Whisper's WER/CER would read
   44.9% / 14.2% — the extra ~1.4 points being formatting, not misrecognition.
 
-Covered so far: two Whisper-family models and Gemini. Still to run (runners are
-ready in `runners/`, they just need API keys): OpenAI's audio API, Google Cloud
-Speech-to-Text, and Yandex SpeechKit.
+Five systems are covered. OpenAI's audio API is the main one not yet run — its
+runner is ready in `runners/`, it just needs a key.
 
 ## Repository layout
 
