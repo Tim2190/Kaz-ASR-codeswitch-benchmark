@@ -74,44 +74,50 @@ so you can read e.g. WER on barbarism-bearing clips separately.
 
 ## Results
 
-First run — Whisper-family models on the full 31-clip set (Google Colab, T4 GPU).
+Full 31-clip set (Google Colab, T4 GPU for the local models; Gemini via API).
 Metrics are the `*_best` variant (better of the two reference layers), with
 number normalization applied (`--normalize-numbers`); lower is better.
 
 | Model | Type | WER | CER |
 |---|---|---:|---:|
 | `shyngys879/kazakh-whisper-large-v3-turbo` | fine-tuned (Kazakh) | **13.0%** | **3.9%** |
+| `gemini-2.5-flash` | commercial multimodal LLM | 30.4% | 12.6% |
 | `openai/whisper-large-v3` | base, zero-shot | 43.5% | 13.0% |
 
-*(WER/CER are macro `wer_best`/`cer_best`; micro values are 13.1% / 4.1% and
-42.8% / 13.0% respectively.)*
+*(WER/CER are macro `wer_best`/`cer_best`; micro values are 13.1% / 4.1%,
+29.0% / 11.8%, and 42.8% / 13.0% respectively.)*
 
 ### By phenomenon
 
 Breaking WER down over the annotation flags is the whole point of the benchmark —
 it shows *where* recognition degrades. WER (macro `wer_best`) per subset:
 
-| Subset | n | Fine-tuned Kazakh | Base Whisper |
-|---|---:|---:|---:|
-| **All** | 31 | **13.0%** | **43.5%** |
-| with Russian barbarisms | 11 | 20.0% | 49.6% |
-| without barbarisms | 20 | 9.1% | 40.2% |
-| with contractions | 20 | 14.8% | 44.8% |
-| without contractions | 11 | 9.6% | 41.1% |
-| with proper nouns* | 5 | 10.6% | 48.9% |
+| Subset | n | Fine-tuned Kazakh | Gemini 2.5 Flash | Base Whisper |
+|---|---:|---:|---:|---:|
+| **All** | 31 | **13.0%** | **30.4%** | **43.5%** |
+| with Russian barbarisms | 11 | 20.0% | 39.6% | 49.6% |
+| without barbarisms | 20 | 9.1% | 25.4% | 40.2% |
+| with contractions | 20 | 14.8% | 32.5% | 44.8% |
+| without contractions | 11 | 9.6% | 26.6% | 41.1% |
+| with proper nouns* | 5 | 10.6% | 28.1% | 48.9% |
 
 \* small subset (n=5) — directional only.
 
 Takeaways:
 
-- **Code-switching is the dominant error driver.** For the fine-tuned model,
-  clips with a Russian barbarism jump from 9.1% to **20.0% WER** (CER 2.2% →
-  7.0%) — more than double. This is exactly the Kazakh-Russian code-switching
-  weakness the benchmark is built to expose, and it is invisible in a single
-  headline number.
-- **Fine-tuning is decisive.** It cuts WER ~3.5× and CER ~3.6× versus base
-  Whisper. The figures track published Kazakh baselines (base Whisper >40% WER;
-  fine-tuned ≈14.5% WER / 3.39% CER), a good sanity check on the harness itself.
+- **Code-switching is the dominant error driver — for every model.** Russian
+  barbarisms inflate WER across the board: fine-tuned 9.1% → 20.0%, Gemini 25.4%
+  → 39.6%, base Whisper 40.2% → 49.6%. This is exactly the Kazakh-Russian
+  code-switching weakness the benchmark is built to expose, and it is invisible
+  in a single headline number.
+- **Fine-tuning still wins by a wide margin.** The fine-tuned model beats the
+  commercial LLM (Gemini) 2.3× on WER and 3.2× on CER, and base Whisper ~3.5×.
+  The figures track published Kazakh baselines (base Whisper >40% WER; fine-tuned
+  ≈14.5% WER / 3.39% CER), a good sanity check on the harness itself.
+- **Gemini lands in the middle.** As a general multimodal LLM it clearly
+  outperforms zero-shot Whisper on word accuracy (30.4% vs 43.5% WER) despite a
+  similar CER, but a task-specific fine-tune is in another league — a concrete
+  data point for "off-the-shelf commercial LLM vs a dedicated Kazakh model".
 - **The two reference layers earn their keep.** The fine-tuned model scores
   19.8% WER against the *verbatim* layer but 13.0% against the *normalized* one —
   a 6.8-point gap that is auto-normalization of morphology, not recognition
@@ -126,9 +132,9 @@ Takeaways:
   as Kazakh words before scoring; without it, base Whisper's WER/CER would read
   44.9% / 14.2% — the extra ~1.4 points being formatting, not misrecognition.
 
-Only open Whisper-family models are covered so far. Commercial services (OpenAI
-API, Google STT, Yandex SpeechKit) need API keys and are still to be run — their
-runners are ready in `runners/`.
+Covered so far: two Whisper-family models and Gemini. Still to run (runners are
+ready in `runners/`, they just need API keys): OpenAI's audio API, Google Cloud
+Speech-to-Text, and Yandex SpeechKit.
 
 ## Repository layout
 

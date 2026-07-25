@@ -17,3 +17,12 @@ whisper_local_large-v3,has_barbarisms=1,11,0.4959,0.5026,0.1624,0.1682,0.5469,0.
 whisper_local_large-v3,has_barbarisms=0,20,0.4016,0.3844,0.1128,0.1066,0.4367,0.4056
 whisper_local_large-v3,has_propers=1,5,0.4895,0.4831,0.1247,0.1242,0.5279,0.5084
 whisper_local_large-v3,has_propers=0,26,0.4246,0.4165,0.1315,0.1308,0.4658,0.4269
+gemini_gemini-2.5-flash,all,31,0.304,0.2903,0.1263,0.1184,0.3628,0.3066
+gemini_gemini-2.5-flash,has_contraction=1,20,0.3252,0.2964,0.1258,0.1157,0.4017,0.3292
+gemini_gemini-2.5-flash,has_contraction=0,11,0.2655,0.2734,0.1272,0.126,0.2921,0.2655
+gemini_gemini-2.5-flash,has_dialect_slang=1,0,0.0,0.0,0.0,0.0,0.0,0.0
+gemini_gemini-2.5-flash,has_dialect_slang=0,31,0.304,0.2903,0.1263,0.1184,0.3628,0.3066
+gemini_gemini-2.5-flash,has_barbarisms=1,11,0.3955,0.3814,0.1711,0.1626,0.4854,0.3955
+gemini_gemini-2.5-flash,has_barbarisms=0,20,0.2537,0.2372,0.1016,0.0916,0.2954,0.2577
+gemini_gemini-2.5-flash,has_propers=1,5,0.2807,0.2667,0.1136,0.1075,0.3548,0.2967
+gemini_gemini-2.5-flash,has_propers=0,26,0.3085,0.2952,0.1287,0.1208,0.3643,0.3085
