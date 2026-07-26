@@ -127,12 +127,10 @@ Takeaways:
   Whisper 39.8% → 47.5%, Google 61.4% → 71.2%, and even the otherwise-dominant
   fine-tuned model 8.4% → 18.2% (×2.2 — its single biggest weakness). Yandex is
   the lone exception, barely moving (16.8% → 17.7%, ×1.1). A word-level check
-  (`scripts/barbarism_analysis.py`) shows the errors fall hardest on the Russian
-  insertions for most systems — Google mis-recognizes **100%** of them (vs 66%
-  of the surrounding Kazakh), Yandex 22% vs 15%, base Whisper 52% vs 47% —
-  though the fine-tune is roughly even (19% vs 17%) and Gemini actually errs more
-  on the Kazakh (26% vs 36%). Caveat: only 11 clips carry a barbarism, so treat
-  the exact deltas as directional.
+  confirms the errors land on the Russian insertions themselves rather than the
+  surrounding Kazakh (Google mis-recognizes **100%** of them), with per-system
+  nuances — full breakdown in [`ANALYSIS.md`](ANALYSIS.md). Caveat: only 11 clips
+  carry a barbarism, so treat the exact deltas as directional.
 - **Fine-tuning still wins, but the gap to Yandex is modest.** The fine-tuned
   model leads (11.9% WER), yet an off-the-shelf commercial API (Yandex) is within
   ~5 points — whereas a general LLM (Gemini, 29.5%) and Google STT are far back.
@@ -154,6 +152,10 @@ Takeaways:
   минут"). The reported numbers apply `--normalize-numbers`, which spells digits
   as Kazakh words before scoring; without it, base Whisper's WER/CER would read
   44.9% / 14.2% — the extra ~1.4 points being formatting, not misrecognition.
+
+**Deeper analyses** — literal vs normalized transcription style, word-level error
+localization on code-switching, and the annotation quality-control audit — are in
+[`ANALYSIS.md`](ANALYSIS.md).
 
 Five systems are covered. OpenAI's audio API is the main one not yet run — its
 runner is ready in `runners/`, it just needs a key.
