@@ -255,6 +255,22 @@ Use `--limit N` on any runner for a quick smoke test on the first N clips.
   emits digits ("5") where the reference spells them out ("бес") is penalized.
   This is a known WER artifact; BERTScore is less sensitive to it.
 
+## Author & Contributions
+
+Created and maintained by **Timur Seidalin**.
+
+- **Dataset & annotation** — sourced and segmented the audio; designed and
+  applied the two-layer (verbatim / normalized) transcription scheme and the
+  phenomenon flags; authored the annotation methodology and ran the
+  quality-control audit.
+- **Benchmark design** — defined the evaluation protocol (dual-reference WER/CER,
+  per-phenomenon breakdown, number normalization) and the analyses in
+  `ANALYSIS.md`.
+- **Engineering** — the scoring harness, provider runners, and reproducibility
+  tooling in this repository.
+
+License: MIT.
+
 ## License & attribution
 
 Code and annotations: see [`LICENSE`](LICENSE). Source audio is derived from
