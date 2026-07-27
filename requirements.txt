@@ -3,3 +3,7 @@ jiwer>=3.0
 
 # Leaderboard chart (scripts/plot_results.py); optional.
 matplotlib
+
+# Statistical analysis (scripts/significance.py); optional.
+numpy
+scipy

@@ -153,9 +153,13 @@ Takeaways:
   as Kazakh words before scoring; without it, base Whisper's WER/CER would read
   44.9% / 14.2% — the extra ~1.4 points being formatting, not misrecognition.
 
-**Deeper analyses** — literal vs normalized transcription style, word-level error
-localization on code-switching, and the annotation quality-control audit — are in
-[`ANALYSIS.md`](ANALYSIS.md).
+**Deeper analyses:**
+- [`ANALYSIS.md`](ANALYSIS.md) — literal vs normalized transcription style,
+  word-level error localization on code-switching, and the annotation
+  quality-control audit.
+- [`STATISTICAL-ANALYSIS.md`](STATISTICAL-ANALYSIS.md) — bootstrap significance
+  testing (which ranking gaps are real), error-type profiles, and per-clip
+  difficulty correlation.
 
 Five systems are covered. OpenAI's audio API is the main one not yet run — its
 runner is ready in `runners/`, it just needs a key.
@@ -169,7 +173,7 @@ audio/                       # 31 WAV clips (see "Audio format" note below)
 evaluate.py                  # scorer: predictions -> WER/CER/(BERTScore) + summary
 benchmark/                   # scoring library (normalize, numbers, metrics, aggregation)
 runners/                     # one script per ASR provider -> predictions_<svc>.jsonl
-scripts/plot_results.py      # render results/leaderboard.png from summary.csv
+scripts/                     # leaderboard chart, word-level & statistical analysis
 results/                     # predictions, score tables, and the leaderboard chart
 requirements.txt             # core scoring deps
 requirements-runners.txt     # per-provider runner deps
